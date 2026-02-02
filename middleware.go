@@ -88,13 +88,16 @@ func RequestLogging(logger *slog.Logger) func(http.Handler) http.Handler {
 	}
 }
 
-// JWTAuth validates Bearer tokens and stores claims in context.
-// Requests to /healthz skip authentication.
-func JWTAuth(secret string, issuer string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/healthz" {
-				next.ServeHTTP(w, r)
+// JWTAuth wraps a handler to validate Bearer tokens and store claims in context.
+// When devBypass is true, authentication is skipped and the userId path param
+// is used as the subject claim (for local development only).
+func JWTAuth(secret string, issuer string, devBypass bool) func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if devBypass {
+				userID := r.PathValue("userId")
+				ctx := context.WithValue(r.Context(), claimsKey, Claims{Subject: userID})
+				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
 
@@ -134,6 +137,6 @@ func JWTAuth(secret string, issuer string) func(http.Handler) http.Handler {
 
 			ctx := context.WithValue(r.Context(), claimsKey, Claims{Subject: sub})
 			next.ServeHTTP(w, r.WithContext(ctx))
-		})
+		}
 	}
 }

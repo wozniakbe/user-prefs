@@ -44,3 +44,4 @@ services:
       AWS_ACCESS_KEY_ID: local
       AWS_SECRET_ACCESS_KEY: local
       LOG_LEVEL: debug
+      DEV_BYPASS_AUTH: "true"

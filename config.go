@@ -16,6 +16,7 @@ type Config struct {
 	AWSRegion       string
 	CORSAllowOrigin string
 	LogLevel        slog.Level
+	DevBypassAuth   bool
 }
 
 func LoadConfig() (Config, error) {
@@ -33,6 +34,7 @@ func LoadConfig() (Config, error) {
 		AWSRegion:       envOrDefault("AWS_REGION", "us-east-1"),
 		CORSAllowOrigin: envOrDefault("CORS_ALLOW_ORIGIN", "*"),
 		LogLevel:        parseLogLevel(os.Getenv("LOG_LEVEL")),
+		DevBypassAuth:   strings.EqualFold(os.Getenv("DEV_BYPASS_AUTH"), "true"),
 	}
 
 	return cfg, nil

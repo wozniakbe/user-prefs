@@ -5,6 +5,7 @@
 *.so
 *.dylib
 /server
+/user-prefs
 
 # Test binary
 *.test
